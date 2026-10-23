@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.withContext
 import org.matrix.rustcomponents.sdk.ThreadListEntriesListener
 import org.matrix.rustcomponents.sdk.ThreadListPaginationStateListener
 import org.matrix.rustcomponents.sdk.ThreadListUpdate
@@ -79,12 +80,16 @@ class RustThreadsListService(
         }
     }
 
-    override suspend fun paginate(): Result<Unit> = runCatchingExceptions {
-        inner.paginate()
+    override suspend fun paginate(): Result<Unit> = withContext(roomDispatcher) {
+        runCatchingExceptions {
+            inner.paginate()
+        }
     }
 
-    override suspend fun reset(): Result<Unit> = runCatchingExceptions {
-        inner.reset()
+    override suspend fun reset(): Result<Unit> = withContext(roomDispatcher) {
+        runCatchingExceptions {
+            inner.reset()
+        }
     }
 
     override fun destroy() {
