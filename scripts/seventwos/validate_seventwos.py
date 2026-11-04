@@ -10,7 +10,7 @@ Validates:
   * (opt-in, `--verify-git-identity`) those SHAs exist as real commit objects
     reachable from this checkout, the recorded merge-base is recomputed and
     must match exactly, and the local `origin` remote matches the expected
-    fork owner/repo.
+    historical or canonical GitHub fork repository.
   * (when `--base-ref` is given) state.yml's `seed:` block is byte-identical
     to its content at the base ref (immutable seed), ledger.jsonl is
     append-only, and invariants.yml/policy.yml/path-map.yml cannot have
@@ -61,6 +61,10 @@ except ImportError:  # pragma: no cover - exercised only when PyYAML missing
 # *is* requires changing this script (and therefore going through normal
 # code review), not just editing YAML.
 EXPECTED_FORK_OWNER = "seventwos-app"
+EXPECTED_ORIGIN_REPOSITORIES = (
+    f"{EXPECTED_FORK_OWNER}/usr-workspace-android",
+    "seventwos-hq/usr-workspace-android",
+)
 EXPECTED_OUR_BRANCH = "develop"
 EXPECTED_UPSTREAM_REPO = "element-hq/element-x-android"
 EXPECTED_UPSTREAM_BRANCH = "develop"
@@ -256,9 +260,10 @@ def validate_state_git_identity(root: Path, repo_root: Path, errors: list[str]) 
 
     Verifies (fail-closed): the recorded SHAs exist as real commit objects
     reachable from this checkout, the recorded merge-base recomputes to the
-    same value, and the local `origin` remote matches the expected fork
-    owner. Callers must have already fetched the objects these SHAs refer
-    to (e.g. by fetching the upstream remote) or this will correctly fail.
+    same value, and the local `origin` remote matches the exact historical
+    or canonical GitHub fork repository. The historical seed stays unchanged.
+    Callers must have already fetched the objects these SHAs refer to
+    (e.g. by fetching the upstream remote) or this will correctly fail.
     """
     path = root / "state.yml"
     if not path.exists():
@@ -309,11 +314,16 @@ def validate_state_git_identity(root: Path, repo_root: Path, errors: list[str]) 
     if remote_proc.returncode != 0:
         errors.append("state.yml: could not read the local 'origin' remote URL for verification")
     else:
-        origin_url = remote_proc.stdout.strip().lower()
-        if EXPECTED_FORK_OWNER.lower() not in origin_url:
+        origin_url = remote_proc.stdout.strip().lower().rstrip("/").removesuffix(".git")
+        allowed_origins = {
+            f"{prefix}{repository}"
+            for repository in EXPECTED_ORIGIN_REPOSITORIES
+            for prefix in ("https://github.com/", "git@github.com:", "ssh://git@github.com/")
+        }
+        if origin_url not in allowed_origins:
             errors.append(
-                f"state.yml: local 'origin' remote ({origin_url}) does not reference the "
-                f"expected fork owner {EXPECTED_FORK_OWNER!r}"
+                "state.yml: local 'origin' remote must reference an exact GitHub fork "
+                f"repository: {', '.join(EXPECTED_ORIGIN_REPOSITORIES)}"
             )
 
 

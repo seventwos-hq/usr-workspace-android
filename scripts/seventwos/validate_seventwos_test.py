@@ -441,7 +441,7 @@ class TestStateGitIdentityVerification(unittest.TestCase):
             # None of VALID_SHA_A/B/C are real commit objects in this repo.
             self.assertTrue(any("not a commit object reachable" in e for e in errors))
 
-    def test_passes_when_shas_are_real_and_merge_base_matches(self):
+    def test_real_identity_requires_exact_legacy_or_canonical_origin(self):
         with tempfile.TemporaryDirectory() as td:
             tmp = Path(td)
             _init_repo(tmp)
@@ -477,10 +477,39 @@ seed:
             seventwos_dir = tmp / ".seventwos"
             seventwos_dir.mkdir()
             _write(seventwos_dir, "state.yml", state_text)
-            _git(tmp, "remote", "add", "origin", f"https://github.com/{v.EXPECTED_FORK_OWNER}/repo.git")
-            errors: list[str] = []
-            v.validate_state_git_identity(seventwos_dir, tmp, errors)
-            self.assertEqual(errors, [])
+            _git(tmp, "remote", "add", "origin", "https://github.com/seventwos-app/usr-workspace-android.git")
+            for owner in ("seventwos-app", "seventwos-hq"):
+                for origin in (
+                    f"https://github.com/{owner}/usr-workspace-android",
+                    f"https://github.com/{owner}/usr-workspace-android.git/",
+                    f"git@github.com:{owner}/usr-workspace-android.git",
+                    f"ssh://git@github.com/{owner}/usr-workspace-android.git",
+                    f"https://GITHUB.COM/{owner.upper()}/USR-WORKSPACE-ANDROID.git",
+                ):
+                    with self.subTest(origin=origin):
+                        _git(tmp, "remote", "set-url", "origin", origin)
+                        errors: list[str] = []
+                        v.validate_state_git_identity(seventwos_dir, tmp, errors)
+                        self.assertEqual(errors, [])
+
+            for origin in (
+                "https://github.com/seventwos-hq/unrelated.git",
+                "https://github.com/seventwos-app/unrelated.git",
+                "https://github.com/not-seventwos-app/usr-workspace-android.git",
+                "https://github.com/seventwos-app-malicious/usr-workspace-android.git",
+                "https://evil.example/seventwos-app/usr-workspace-android.git",
+                "https://github.com.evil.example/seventwos-app/usr-workspace-android.git",
+                "https://github.com/other/usr-workspace-android.git?seventwos-app",
+                "https://github.com/seventwos-app/usr-workspace-android/extra.git",
+                "https://github.com/seventwos-app/usr-workspace-android.git#fragment",
+                "https://user:example-token@github.com/seventwos-hq/usr-workspace-android.git",
+            ):
+                with self.subTest(origin=origin):
+                    _git(tmp, "remote", "set-url", "origin", origin)
+                    errors = []
+                    v.validate_state_git_identity(seventwos_dir, tmp, errors)
+                    self.assertTrue(any("local 'origin' remote" in e for e in errors))
+                    self.assertNotIn("example-token", "\n".join(errors))
 
     def test_rejects_tampered_merge_base(self):
         with tempfile.TemporaryDirectory() as td:
