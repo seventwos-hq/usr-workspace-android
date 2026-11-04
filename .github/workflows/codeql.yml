@@ -13,7 +13,8 @@ permissions: {}
 jobs:
   analyze:
     name: Analyze Android (Java/Kotlin)
-    runs-on: ubuntu-latest
+    # Keep the Android/CodeQL toolchain on its last passing runner image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     permissions:
       actions: read
@@ -36,7 +37,8 @@ jobs:
           languages: java-kotlin
           build-mode: manual
       - name: Compile app debug variant
-        run: ./gradlew :app:compileGplayDebugKotlin --stacktrace --no-configuration-cache --no-build-cache
+        # Release compiler JVMs before starting the separate CodeQL analysis heap.
+        run: ./gradlew :app:compileGplayDebugKotlin --stacktrace --no-configuration-cache --no-build-cache --no-daemon -Pkotlin.compiler.execution.strategy=in-process
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
         with:
