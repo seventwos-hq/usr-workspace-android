@@ -1,9 +1,10 @@
 name: Maestro (local)
 
-# Run this flow only when APK Build workflow completes
+# Manual only: this flow signs in to a live Matrix account and sends messages.
+# It must target a Seventwos-owned test homeserver configured through the
+# MAESTRO_* repository variables and secrets; it never runs on pull requests.
 on:
   workflow_dispatch:
-  pull_request:
 
 permissions: {}
 
@@ -107,12 +108,13 @@ jobs:
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         continue-on-error: true
         env:
-          MAESTRO_USERNAME: maestroseventwos
+          MAESTRO_USERNAME: ${{ vars.MAESTRO_USERNAME }}
           MAESTRO_PASSWORD: ${{ secrets.MATRIX_MAESTRO_ACCOUNT_PASSWORD }}
           MAESTRO_RECOVERY_KEY: ${{ secrets.MATRIX_MAESTRO_ACCOUNT_RECOVERY_KEY }}
-          MAESTRO_ROOM_NAME: MyRoom
-          MAESTRO_INVITEE1_MXID: "@maestroseventwos2:matrix.org"
-          MAESTRO_INVITEE2_MXID: "@maestroseventwos3:matrix.org"
+          MAESTRO_ROOM_NAME: ${{ vars.MAESTRO_ROOM_NAME }}
+          MAESTRO_INVITEE1_MXID: ${{ vars.MAESTRO_INVITEE1_MXID }}
+          MAESTRO_INVITEE1_NAME: ${{ vars.MAESTRO_INVITEE1_NAME }}
+          MAESTRO_INVITEE2_MXID: ${{ vars.MAESTRO_INVITEE2_MXID }}
           MAESTRO_APP_ID: org.seventwos.workspace.debug
         with:
           api-level: ${{ env.API_LEVEL }}
