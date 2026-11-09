@@ -7,4 +7,5 @@ if (MAESTRO_PASSWORD == null) throw "Fatal: missing env variable MAESTRO_PASSWOR
 if (MAESTRO_RECOVERY_KEY == null) throw "Fatal: missing env variable MAESTRO_RECOVERY_KEY"
 if (MAESTRO_ROOM_NAME == null) throw "Fatal: missing env variable MAESTRO_ROOM_NAME"
 if (MAESTRO_INVITEE1_MXID == null) throw "Fatal: missing env variable MAESTRO_INVITEE1_MXID"
+if (MAESTRO_INVITEE1_NAME == null) throw "Fatal: missing env variable MAESTRO_INVITEE1_NAME"
 if (MAESTRO_INVITEE2_MXID == null) throw "Fatal: missing env variable MAESTRO_INVITEE2_MXID"
