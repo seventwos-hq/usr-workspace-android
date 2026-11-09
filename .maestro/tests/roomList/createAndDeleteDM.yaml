@@ -18,7 +18,7 @@ appId: ${MAESTRO_APP_ID}
     commands:
       - tapOn: 'Send invite'
 - takeScreenshot: build/maestro/330-createAndDeleteDM
-- tapOn: "maestroseventwos2"
+- tapOn: ${MAESTRO_INVITEE1_NAME}
 - scroll
 - tapOn: "Leave room"
 - tapOn: "Leave"
