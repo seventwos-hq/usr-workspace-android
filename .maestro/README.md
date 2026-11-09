@@ -18,7 +18,7 @@ To setup, please refer at [https://maestro.mobile.dev](https://maestro.mobile.de
 
 From root dir of the project
 
-*Note: Since Seventwos Workspace does not allow account creation, we have to use an existing account to run maestro test suite. So to run locally, please replace `user` and `123` with your test matrix.org account credentials, and `my room` with one of a room this account has joined. Note that the test will send messages to this room.*
+*Note: Since Seventwos Workspace does not allow account creation, we have to use an existing account to run maestro test suite. So to run locally, please replace `user` and `123` with credentials for a test account on a Seventwos-owned test homeserver (never a public homeserver such as matrix.org), and `my room` with one of a room this account has joined. Note that the test will send messages to this room.*
 
 ```shell
 maestro test \
@@ -28,6 +28,7 @@ maestro test \
     -e MAESTRO_RECOVERY_KEY=ABC \
     -e MAESTRO_ROOM_NAME="MyRoom" \
     -e MAESTRO_INVITEE1_MXID=user2 \
+    -e MAESTRO_INVITEE1_NAME=user2 \
     -e MAESTRO_INVITEE2_MXID=user3 \
     .maestro/allTests.yaml
 ```
