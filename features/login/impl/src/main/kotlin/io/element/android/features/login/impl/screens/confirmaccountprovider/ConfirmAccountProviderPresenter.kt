@@ -64,7 +64,7 @@ class ConfirmAccountProviderPresenter(
         }.collectAsState(emptyList())
 
         // The account providers offered for autocomplete: previously-used ones first, then the
-        // enterprise/MDM-configured allow-list, then matrix.org (always available, even before any sign-in).
+        // enterprise/MDM-configured allow-list, then the Seventwos default (always available, even before any sign-in).
         // Everything is rendered without the https:// scheme (added back at connection time).
         val autocompleteCandidates = remember(homeserverHistory) {
             (homeserverHistory + enterpriseService.accountProviderAllowList() + matrixOrgAccountProvider)
@@ -73,7 +73,7 @@ class ConfirmAccountProviderPresenter(
         }
 
         // Editable input, seeded from the current (history-defaulted) account provider until the user edits it.
-        // Displayed without the scheme, so the field shows e.g. "matrix.org" rather than "https://matrix.org".
+        // Displayed without the scheme, so the field shows e.g. "workspace.seventwos.org" rather than "https://workspace.seventwos.org".
         var userInput by rememberSaveable { mutableStateOf<String?>(null) }
         val accountProviderInput = userInput ?: accountProvider.friendlyServerName()
 
@@ -133,7 +133,7 @@ class ConfirmAccountProviderPresenter(
                     // For a user ID the homeserver is the domain part (after the ':'), keeping any port.
                     val host = if (isUserId) accountProvider.substringAfter(":") else accountProvider
                     submittedLoginHint = "mxid:$accountProvider".takeIf { isUserId && !params.isAccountCreation }
-                    // Default the scheme to https:// so entering a bare host (e.g. "matrix.org") works.
+                    // Default the scheme to https:// so entering a bare host (e.g. "workspace.seventwos.org") works.
                     val accountProviderUrl = host.ensureProtocol()
                     submittedAccountProvider = accountProviderUrl
                     changeServerState.eventSink(
