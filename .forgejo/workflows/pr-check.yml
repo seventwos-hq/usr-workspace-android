@@ -3,7 +3,7 @@ on: pull_request
 permissions:
   contents: read
 # fast-gate: brand guard + XML sanity (target < 5 min).
-# gradle-check: Android lint + unit tests inside the 10 GB runner container.
+# gradle-setup / gradle-lint / gradle-test: Android SDK setup, lint, unit tests inside the 10 GB runner container.
 # Gradle home and Android SDK live in named docker volumes so only the first
 # run pays the slow dependency download (dev VM external network is slow).
 jobs:
@@ -29,17 +29,16 @@ jobs:
           sys.exit(1 if bad else 0)
           PY
 
-  gradle-check:
+  gradle-setup:
     runs-on: dev-vm
     container:
       image: eclipse-temurin:21-jdk
       options: --memory=10g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
-    timeout-minutes: 90
+    timeout-minutes: 30
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-      # Daemon 3 GB + Kotlin daemon 2 GB + test JVMs stay under the 10 GB container limit.
-      GRADLE_ARGS: --no-daemon --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.workers.max=2 -Pkotlin.daemon.jvmargs=-Xmx2g
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.daemon.jvmargs=-Xmx2g
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
@@ -61,30 +60,67 @@ jobs:
           echo "compileSdk=$COMPILE buildTools=$BT"
           test -n "$COMPILE" && test -n "$BT"
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$COMPILE" "build-tools;$BT" "platform-tools"
-      - name: Diagnostics after SDK install failure
+      - name: Gradle and JDK versions
+        run: |
+          java -version
+          ./gradlew --version --no-daemon --console=plain
+      - name: Diagnostics on failure
         if: failure()
         run: |
           free -m
+          echo "::error::gradle-setup failed"
           for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
             echo "=== $f"; tail -n 60 "$f"
           done
+
+
+  gradle-lint:
+    runs-on: dev-vm
+    container:
+      image: eclipse-temurin:21-jdk
+      options: --memory=10g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+    timeout-minutes: 45
+    needs: [gradle-setup]
+    env:
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.daemon.jvmargs=-Xmx2g
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
+      - uses: actions/checkout@v4
       - name: Android lint
-        continue-on-error: false
         run: ./gradlew :app:lintGplayDebug $GRADLE_ARGS
-      - name: Diagnostics after lint failure
+      - name: Diagnostics on failure
         if: failure()
         run: |
           free -m
+          echo "::error::gradle-lint failed"
           for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
             echo "=== $f"; tail -n 60 "$f"
           done
+
+
+  gradle-test:
+    runs-on: dev-vm
+    container:
+      image: eclipse-temurin:21-jdk
+      options: --memory=10g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+    timeout-minutes: 60
+    needs: [gradle-setup]
+    env:
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.daemon.jvmargs=-Xmx2g
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
+      - uses: actions/checkout@v4
       - name: Unit tests
-        continue-on-error: false
         run: ./gradlew :app:testGplayDebugUnitTest testDebugUnitTest -x :tests:konsist:testDebugUnitTest $GRADLE_ARGS
-      - name: Diagnostics after unit tests failure
+      - name: Diagnostics on failure
         if: failure()
         run: |
           free -m
+          echo "::error::gradle-test failed"
           for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
             echo "=== $f"; tail -n 60 "$f"
           done
