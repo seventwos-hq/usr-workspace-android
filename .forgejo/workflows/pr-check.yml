@@ -40,56 +40,30 @@ jobs:
       ANDROID_SDK_ROOT: /opt/android-sdk
       GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx2g -Pkotlin.daemon.jvmargs=-Xmx1g
     steps:
-      - name: "[1/6] apt packages"
+      - name: "[1/4] apt packages"
         run: |
           set -x
-          echo "=== STEP 1/6: apt packages ==="
+          echo "=== STEP 1/4: apt packages ==="
           apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
-      - name: "[2/6] env, volumes and memory check"
+      - name: "[2/4] env, volumes and memory check"
         run: |
           set -x
-          echo "=== STEP 2/6: env/volumes ==="
+          echo "=== STEP 2/4: env/volumes ==="
           echo "ANDROID_HOME=$ANDROID_HOME"
           id; df -h /root/.gradle /opt/android-sdk || true
           ls -la /opt/android-sdk /root/.gradle || true
           free -m
           cat /sys/fs/cgroup/memory.max 2>/dev/null || true
-          touch /opt/android-sdk/.w /root/.gradle/.w && echo "volumes writable"
-      - name: "[3/6] SDK cmdline-tools download"
+          # act_runner ignores -v in container.options, so the dirs may not exist: create them (cache is best-effort).
+          mkdir -p /opt/android-sdk /root/.gradle
+          touch /opt/android-sdk/.w /root/.gradle/.w && echo "dirs writable"
+      - name: "[3-5/6] Android SDK (cmdline-tools, licenses, platform, build-tools)"
+        run: bash scripts/ci-android-sdk.sh
+      - name: "[4/4] Gradle wrapper download and version"
         run: |
           set -x
-          echo "=== STEP 3/6: cmdline-tools ==="
-          if [ ! -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-            mkdir -p "$ANDROID_HOME/cmdline-tools"
-            curl -fSL --retry 3 --connect-timeout 30 -o /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-            rm -rf /tmp/cmdtools
-            unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
-            rm -rf "$ANDROID_HOME/cmdline-tools/latest"
-            mv /tmp/cmdtools/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
-          fi
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --version
-      - name: "[4/6] SDK licenses"
-        run: |
-          set -x
-          echo "=== STEP 4/6: sdkmanager licenses ==="
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || echo "licenses exit=$?"
-          ls "$ANDROID_HOME/licenses"
-      - name: "[5/6] SDK platform and build-tools"
-        run: |
-          set -x
-          echo "=== STEP 5/6: SDK packages ==="
-          V=plugins/src/main/kotlin/Versions.kt
-          COMPILE=$(grep -E "const val COMPILE_SDK" $V | grep -oE "[0-9]+" | head -1)
-          BT=$(grep -E "BUILD_TOOLS_VERSION =" $V | grep -oE "[0-9]+(\.[0-9]+)+" | head -1)
-          echo "compileSdk=$COMPILE buildTools=$BT"
-          test -n "$COMPILE" && test -n "$BT"
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$COMPILE" "build-tools;$BT" "platform-tools" || test -d "$ANDROID_HOME/platforms/android-$COMPILE"
-          ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools"
-      - name: "[6/6] Gradle wrapper download and version"
-        run: |
-          set -x
-          echo "=== STEP 6/6: gradle wrapper ==="
+          echo "=== STEP 4/4: gradle wrapper ==="
           java -version
           ./gradlew --version --no-daemon --console=plain
       - name: Diagnostics on failure
@@ -116,6 +90,8 @@ jobs:
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
+      - name: Android SDK
+        run: bash scripts/ci-android-sdk.sh
       - name: Android lint
         run: ./gradlew :app:lintGplayDebug $GRADLE_ARGS
       - name: Diagnostics on failure
@@ -142,6 +118,8 @@ jobs:
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
+      - name: Android SDK
+        run: bash scripts/ci-android-sdk.sh
       - name: Unit tests
         run: ./gradlew :app:testGplayDebugUnitTest testDebugUnitTest -x :tests:konsist:testDebugUnitTest $GRADLE_ARGS
       - name: Diagnostics on failure
