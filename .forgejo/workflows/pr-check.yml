@@ -38,8 +38,8 @@ jobs:
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-      # Daemon 5 GB + Kotlin daemon 2 GB + test JVMs stay under the 10 GB container limit.
-      GRADLE_ARGS: --no-daemon --console=plain -Dorg.gradle.jvmargs=-Xmx5g -Dorg.gradle.workers.max=2 -Pkotlin.daemon.jvmargs=-Xmx2g
+      # Daemon 3 GB + Kotlin daemon 2 GB + test JVMs stay under the 10 GB container limit.
+      GRADLE_ARGS: --no-daemon --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Dorg.gradle.workers.max=2 -Pkotlin.daemon.jvmargs=-Xmx2g
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
@@ -52,7 +52,39 @@ jobs:
             mv /tmp/cmdtools/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
           fi
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      - name: Install SDK platform and build-tools (from Versions.kt)
+        continue-on-error: false
+        run: |
+          V=plugins/src/main/kotlin/Versions.kt
+          COMPILE=$(grep -E "const val COMPILE_SDK" $V | grep -oE "[0-9]+" | head -1)
+          BT=$(grep -E "BUILD_TOOLS_VERSION =" $V | grep -oE "[0-9]+(\.[0-9]+)+" | head -1)
+          echo "compileSdk=$COMPILE buildTools=$BT"
+          test -n "$COMPILE" && test -n "$BT"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$COMPILE" "build-tools;$BT" "platform-tools"
+      - name: Diagnostics after SDK install failure
+        if: failure()
+        run: |
+          free -m
+          for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
+            echo "=== $f"; tail -n 60 "$f"
+          done
       - name: Android lint
+        continue-on-error: false
         run: ./gradlew :app:lintGplayDebug $GRADLE_ARGS
+      - name: Diagnostics after lint failure
+        if: failure()
+        run: |
+          free -m
+          for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
+            echo "=== $f"; tail -n 60 "$f"
+          done
       - name: Unit tests
+        continue-on-error: false
         run: ./gradlew :app:testGplayDebugUnitTest testDebugUnitTest -x :tests:konsist:testDebugUnitTest $GRADLE_ARGS
+      - name: Diagnostics after unit tests failure
+        if: failure()
+        run: |
+          free -m
+          for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
+            echo "=== $f"; tail -n 60 "$f"
+          done
