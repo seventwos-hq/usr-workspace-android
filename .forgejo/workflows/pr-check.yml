@@ -1,0 +1,17 @@
+name: pr-check
+on: pull_request
+permissions:
+  contents: read
+jobs:
+  pr-check:
+    runs-on: dev-vm
+    container:
+      image: eclipse-temurin:21-jdk
+      options: --memory=10g
+    env:
+      GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git nodejs
+      - uses: actions/checkout@v4
+      - run: ./gradlew :app:lintGplayDebug --no-daemon -Dorg.gradle.workers.max=4
+      - run: ./gradlew :app:testGplayDebugUnitTest --no-daemon -Dorg.gradle.workers.max=4
