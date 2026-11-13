@@ -7,6 +7,7 @@ app/src/main/res/values-night/themes.xml	1
 app/src/main/res/values/themes.xml	1
 docs/design.md	4
 docs/oauth.md	7
+docs/upstream-intake.md	1
 features/analytics/api/src/main/kotlin/io/element/android/features/analytics/api/preferences/AnalyticsPreferencesStatePreviewParam.kt	1
 features/call/impl/src/main/kotlin/io/element/android/features/call/impl/ui/CallScreenStatePreviewParam.kt	1
 features/call/impl/src/main/res/values-ar/translations.xml	2
