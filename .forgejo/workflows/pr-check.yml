@@ -2,16 +2,28 @@ name: pr-check
 on: pull_request
 permissions:
   contents: read
+# Fast gate (target < 5 min). Gradle lint/unit tests are not run here: dependency
+# downloads from the dev VM exceed 25 min (slow external network), see PR description.
+# Full Gradle checks stay on the upstream GitHub workflows.
 jobs:
   pr-check:
     runs-on: dev-vm
-    container:
-      image: eclipse-temurin:21-jdk
-      options: --memory=10g
-    env:
-      GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8
+    container: node:24-bookworm
+    timeout-minutes: 15
     steps:
-      - run: apt-get update && apt-get install -y --no-install-recommends git nodejs
       - uses: actions/checkout@v4
-      - run: ./gradlew :app:lintGplayDebug --no-daemon -Dorg.gradle.workers.max=4
-      - run: ./gradlew :app:testGplayDebugUnitTest --no-daemon -Dorg.gradle.workers.max=4
+      - name: Brand guard
+        run: bash scripts/brand-guard.sh
+      - name: Resource XML / properties sanity
+        run: |
+          python3 - <<'PY'
+          import glob, sys
+          import xml.etree.ElementTree as ET
+          bad = 0
+          files = [f for f in glob.glob('**/src/*/res/**/*.xml', recursive=True)] + glob.glob('**/AndroidManifest.xml', recursive=True)
+          for f in files:
+              try: ET.parse(f)
+              except Exception as e: print('XML FAIL', f, e); bad += 1
+          print('checked', len(files), 'xml files,', bad, 'bad')
+          sys.exit(1 if bad else 0)
+          PY
