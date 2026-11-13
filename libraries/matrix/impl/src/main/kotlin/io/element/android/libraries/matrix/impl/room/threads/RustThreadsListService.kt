@@ -17,6 +17,7 @@ import io.element.android.libraries.matrix.api.room.threads.ThreadsListService
 import io.element.android.libraries.matrix.impl.timeline.item.event.TimelineEventContentMapper
 import io.element.android.libraries.matrix.impl.timeline.item.event.map
 import io.element.android.libraries.matrix.impl.util.mxCallbackFlow
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -34,6 +35,7 @@ import org.matrix.rustcomponents.sdk.ThreadListService as InnerThreadListService
 class RustThreadsListService(
     private val inner: InnerThreadListService,
     private val roomCoroutineScope: CoroutineScope,
+    private val roomDispatcher: CoroutineDispatcher,
     private val contentMapper: TimelineEventContentMapper = TimelineEventContentMapper(),
 ) : ThreadsListService {
     private var itemSubscriptionJob: Job? = null
