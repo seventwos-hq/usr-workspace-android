@@ -2,9 +2,10 @@ name: pr-check
 on: pull_request
 permissions:
   contents: read
-# Fast gate (target < 5 min). Gradle lint/unit tests are not run here: dependency
-# downloads from the dev VM exceed 25 min (slow external network), see PR description.
-# Full Gradle checks stay on the upstream GitHub workflows.
+# fast-gate: brand guard + XML sanity (target < 5 min).
+# gradle-check: Android lint + unit tests inside the 10 GB runner container.
+# Gradle home and Android SDK live in named docker volumes so only the first
+# run pays the slow dependency download (dev VM external network is slow).
 jobs:
   pr-check:
     runs-on: dev-vm
@@ -27,3 +28,31 @@ jobs:
           print('checked', len(files), 'xml files,', bad, 'bad')
           sys.exit(1 if bad else 0)
           PY
+
+  gradle-check:
+    runs-on: dev-vm
+    container:
+      image: eclipse-temurin:21-jdk
+      options: --memory=10g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+    timeout-minutes: 90
+    env:
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+      # Daemon 5 GB + Kotlin daemon 2 GB + test JVMs stay under the 10 GB container limit.
+      GRADLE_ARGS: --no-daemon --console=plain -Dorg.gradle.jvmargs=-Xmx5g -Dorg.gradle.workers.max=2 -Pkotlin.daemon.jvmargs=-Xmx2g
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
+      - uses: actions/checkout@v4
+      - name: Android SDK command-line tools (cached in volume)
+        run: |
+          if [ ! -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            mkdir -p "$ANDROID_HOME/cmdline-tools"
+            curl -fsSL -o /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
+            mv /tmp/cmdtools/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
+          fi
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      - name: Android lint
+        run: ./gradlew :app:lintGplayDebug $GRADLE_ARGS
+      - name: Unit tests
+        run: ./gradlew :app:testGplayDebugUnitTest testDebugUnitTest -x :tests:konsist:testDebugUnitTest $GRADLE_ARGS
