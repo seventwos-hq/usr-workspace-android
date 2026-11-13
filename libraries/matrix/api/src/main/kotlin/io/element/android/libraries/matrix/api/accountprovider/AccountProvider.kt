@@ -69,5 +69,5 @@ sealed interface AccountProvider {
 }
 
 val matrixOrgAccountProvider = AccountProvider.Generic(
-    serverName = "matrix.org",
+    serverName = "workspace.seventwos.org",
 )

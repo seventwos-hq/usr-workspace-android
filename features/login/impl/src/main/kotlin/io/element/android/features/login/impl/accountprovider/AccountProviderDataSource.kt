@@ -32,7 +32,7 @@ class AccountProviderDataSource(
     @AppCoroutineScope private val coroutineScope: CoroutineScope,
 ) {
     // The provider used when the user has not selected one: an enterprise/MDM-configured provider,
-    // else matrix.org. The most recently used provider (from history) can override it, see init.
+    // else the Seventwos default (workspace.seventwos.org). The most recently used provider (from history) can override it, see init.
     private val configuredAccountProvider = enterpriseService.accountProviderAllowList()
         .firstOrNull()
         ?: matrixOrgAccountProvider
