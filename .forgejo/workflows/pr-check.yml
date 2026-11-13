@@ -86,7 +86,7 @@ jobs:
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx2g -Pkotlin.daemon.jvmargs=-Xmx1g
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.daemon.jvmargs=-Xmx512m
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
