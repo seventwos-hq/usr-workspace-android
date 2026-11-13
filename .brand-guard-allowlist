@@ -16,7 +16,7 @@ features/call/impl/src/main/res/values-cs/translations.xml	2
 features/call/impl/src/main/res/values-cy/translations.xml	2
 features/call/impl/src/main/res/values-da/translations.xml	2
 features/call/impl/src/main/res/values-de/translations.xml	2
-features/call/impl/src/main/res/values/do_not_translate.xml	2
+features/call/impl/src/main/res/values/do_not_translate.xml	1
 features/call/impl/src/main/res/values-el/translations.xml	2
 features/call/impl/src/main/res/values-es/translations.xml	2
 features/call/impl/src/main/res/values-et/translations.xml	2
@@ -30,7 +30,6 @@ features/call/impl/src/main/res/values-in/translations.xml	2
 features/call/impl/src/main/res/values-it/translations.xml	2
 features/call/impl/src/main/res/values-ja/translations.xml	2
 features/call/impl/src/main/res/values-ko/translations.xml	2
-features/call/impl/src/main/res/values/localazy.xml	2
 features/call/impl/src/main/res/values-nb/translations.xml	1
 features/call/impl/src/main/res/values-pl/translations.xml	2
 features/call/impl/src/main/res/values-pt-rBR/translations.xml	2
@@ -74,7 +73,7 @@ features/login/impl/src/main/res/values-in/translations.xml	5
 features/login/impl/src/main/res/values-it/translations.xml	5
 features/login/impl/src/main/res/values-ja/translations.xml	5
 features/login/impl/src/main/res/values-ko/translations.xml	5
-features/login/impl/src/main/res/values/localazy.xml	5
+features/login/impl/src/main/res/values/localazy.xml	4
 features/login/impl/src/main/res/values-lt/translations.xml	3
 features/login/impl/src/main/res/values-nb/translations.xml	4
 features/login/impl/src/main/res/values-nl/translations.xml	1
@@ -146,7 +145,6 @@ features/preferences/impl/src/main/res/values-in/translations.xml	2
 features/preferences/impl/src/main/res/values-it/translations.xml	2
 features/preferences/impl/src/main/res/values-ja/translations.xml	2
 features/preferences/impl/src/main/res/values-ko/translations.xml	1
-features/preferences/impl/src/main/res/values/localazy.xml	2
 features/preferences/impl/src/main/res/values-nb/translations.xml	2
 features/preferences/impl/src/main/res/values-nl/translations.xml	2
 features/preferences/impl/src/main/res/values-pl/translations.xml	2
