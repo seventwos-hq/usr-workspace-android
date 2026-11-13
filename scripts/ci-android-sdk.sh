@@ -19,5 +19,11 @@ COMPILE=$(grep -E "const val COMPILE_SDK" $V | grep -oE "[0-9]+" | head -1)
 BT=$(grep -E "BUILD_TOOLS_VERSION =" $V | grep -oE "[0-9]+(\.[0-9]+)+" | head -1)
 echo "compileSdk=$COMPILE buildTools=$BT"
 test -n "$COMPILE" && test -n "$BT"
-yes | "$SDKM" "platforms;android-$COMPILE" "build-tools;$BT" "platform-tools" || test -d "$ANDROID_HOME/platforms/android-$COMPILE"
+# Newer APIs are published as platforms;android-N.0 (e.g. android-37.0); older ones as android-N.
+PLAT=$("$SDKM" --list 2>/dev/null | grep -oE "platforms;android-${COMPILE}(\.0)?( |$)" | tr -d " " | sort -u | tail -1 || true)
+PLAT=${PLAT:-platforms;android-$COMPILE.0}
+echo "platform package: $PLAT"
+yes | "$SDKM" "$PLAT" "build-tools;$BT" "platform-tools" || true
 ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools"
+test -d "$ANDROID_HOME/platforms/android-$COMPILE" || test -d "$ANDROID_HOME/platforms/android-$COMPILE.0"
+test -d "$ANDROID_HOME/build-tools/$BT"
