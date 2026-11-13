@@ -3,7 +3,7 @@ on: pull_request
 permissions:
   contents: read
 # fast-gate: brand guard + XML sanity (target < 5 min).
-# gradle-setup / gradle-lint / gradle-test: Android SDK setup, lint, unit tests inside the 10 GB runner container.
+# gradle-setup / gradle-lint / gradle-test: Android SDK setup, lint, unit tests inside the 5 GB runner container (heavy cap).
 # Gradle home and Android SDK live in named docker volumes so only the first
 # run pays the slow dependency download (dev VM external network is slow).
 jobs:
@@ -33,35 +33,63 @@ jobs:
     runs-on: dev-vm
     container:
       image: eclipse-temurin:21-jdk
-      options: --memory=10g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+      options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
     timeout-minutes: 30
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.daemon.jvmargs=-Xmx2g
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx2g -Pkotlin.daemon.jvmargs=-Xmx1g
     steps:
-      - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
-      - uses: actions/checkout@v4
-      - name: Android SDK command-line tools (cached in volume)
+      - name: "[1/6] apt packages"
         run: |
+          set -x
+          echo "=== STEP 1/6: apt packages ==="
+          apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
+      - uses: actions/checkout@v4
+      - name: "[2/6] env, volumes and memory check"
+        run: |
+          set -x
+          echo "=== STEP 2/6: env/volumes ==="
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          id; df -h /root/.gradle /opt/android-sdk || true
+          ls -la /opt/android-sdk /root/.gradle || true
+          free -m
+          cat /sys/fs/cgroup/memory.max 2>/dev/null || true
+          touch /opt/android-sdk/.w /root/.gradle/.w && echo "volumes writable"
+      - name: "[3/6] SDK cmdline-tools download"
+        run: |
+          set -x
+          echo "=== STEP 3/6: cmdline-tools ==="
           if [ ! -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
             mkdir -p "$ANDROID_HOME/cmdline-tools"
-            curl -fsSL -o /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            curl -fSL --retry 3 --connect-timeout 30 -o /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            rm -rf /tmp/cmdtools
             unzip -q /tmp/cmdtools.zip -d /tmp/cmdtools
+            rm -rf "$ANDROID_HOME/cmdline-tools/latest"
             mv /tmp/cmdtools/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
           fi
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
-      - name: Install SDK platform and build-tools (from Versions.kt)
-        continue-on-error: false
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --version
+      - name: "[4/6] SDK licenses"
         run: |
+          set -x
+          echo "=== STEP 4/6: sdkmanager licenses ==="
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || echo "licenses exit=$?"
+          ls "$ANDROID_HOME/licenses"
+      - name: "[5/6] SDK platform and build-tools"
+        run: |
+          set -x
+          echo "=== STEP 5/6: SDK packages ==="
           V=plugins/src/main/kotlin/Versions.kt
           COMPILE=$(grep -E "const val COMPILE_SDK" $V | grep -oE "[0-9]+" | head -1)
           BT=$(grep -E "BUILD_TOOLS_VERSION =" $V | grep -oE "[0-9]+(\.[0-9]+)+" | head -1)
           echo "compileSdk=$COMPILE buildTools=$BT"
           test -n "$COMPILE" && test -n "$BT"
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$COMPILE" "build-tools;$BT" "platform-tools"
-      - name: Gradle and JDK versions
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-$COMPILE" "build-tools;$BT" "platform-tools" || test -d "$ANDROID_HOME/platforms/android-$COMPILE"
+          ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools"
+      - name: "[6/6] Gradle wrapper download and version"
         run: |
+          set -x
+          echo "=== STEP 6/6: gradle wrapper ==="
           java -version
           ./gradlew --version --no-daemon --console=plain
       - name: Diagnostics on failure
@@ -78,13 +106,13 @@ jobs:
     runs-on: dev-vm
     container:
       image: eclipse-temurin:21-jdk
-      options: --memory=10g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+      options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
     timeout-minutes: 45
     needs: [gradle-setup]
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.daemon.jvmargs=-Xmx2g
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx2g -Pkotlin.daemon.jvmargs=-Xmx1g
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
@@ -104,13 +132,13 @@ jobs:
     runs-on: dev-vm
     container:
       image: eclipse-temurin:21-jdk
-      options: --memory=10g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+      options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
     timeout-minutes: 60
     needs: [gradle-setup]
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.daemon.jvmargs=-Xmx2g
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx2g -Pkotlin.daemon.jvmargs=-Xmx1g
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
