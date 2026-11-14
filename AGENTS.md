@@ -43,3 +43,13 @@ Semver tags `vX.Y.Z`. Al signs off releases.
 - Settings include modules dynamically; adding a build.gradle.kts dir adds a module.
 - Repo carries LFS images (validate-lfs workflow).
 - Settings root project name is `SeventwosApp`; license headers (AGPL SPDX) required on new files.
+
+## UI changes need screenshots
+
+Any user-visible change (screens, layout, styling, branding, text, flows) must include:
+
+- An "after" screenshot of every changed screen, and a "before" screenshot when an existing screen changed.
+- Android: capture from the emulator with `adb exec-out screencap -p > shot.png`.
+- Use realistic data, not empty states.
+- Attach screenshots to the Notion card and to the PR description.
+- Missing screenshots = not approved.
