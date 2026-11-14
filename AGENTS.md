@@ -27,7 +27,7 @@ Kotlin 2.4 + Jetpack Compose, Gradle (Kotlin DSL, version catalog), AGP 9.3, Mat
 - Needs JDK + Android SDK; see docs/_developer_onboarding.md.
 
 ## Branching
-Base branch: `develop`. Agents work on `card/<id>-<slug>` branches, never push to main/develop. Changes land via PR reviewed by Al (CPO).
+`main` is the only long-lived branch (trunk-based): branch from and open PRs into `main`, keep branches short-lived (`feat/`, `fix/`, `chore/`, or `card/<id>-<slug>` for agents) and squash-merge. `develop` is being retired; until it is removed CI runs for both `main` and `develop`, but start no new work on `develop`. Agents work on `card/<id>-<slug>` branches, never push directly to main. Changes land via PR reviewed by Al (CPO).
 
 ## Versioning
 Semver tags `vX.Y.Z`. Al signs off releases.
