@@ -14,21 +14,31 @@ fi
 changed="$(git diff --name-only "$BASE_SHA" HEAD)"
 echo "Changed files: $(printf '%s\n' "$changed" | grep -c . || true)"
 
-if ! printf '%s\n' "$changed" | grep -qE '\.(kt|kts|java)$|(^|/)(libs\.versions\.toml|gradle\.properties)$|src/[^/]+/(res|AndroidManifest)'; then
+matches() { printf '%s\n' "$changed" | grep -E "$1" >/dev/null; }  # no -q: consume all input (avoid SIGPIPE under pipefail)
+build_wide=0
+if matches '^(build\.gradle\.kts|settings\.gradle\.kts|gradle/|gradlew(\.bat)?$|plugins/|gradle\.properties)'; then build_wide=1; fi
+
+if [ "$build_wide" = 0 ] && ! matches '\.(kt|kts|java)$|(^|/)(libs\.versions\.toml|gradle\.properties)$|src/[^/]+/(res|AndroidManifest)'; then
   echo "No Kotlin/Java/Gradle changes: skipping unit tests (success)."
   exit 0
 fi
 
 modules=""
 add() { case " $modules " in *" $1 "*) ;; *) modules="$modules $1";; esac; }
-build_wide=0
-printf '%s\n' "$changed" | grep -qE '^(build\.gradle\.kts|settings\.gradle\.kts|gradle/|plugins/|gradle\.properties)' && build_wide=1
 while IFS= read -r f; do
   [ -n "$f" ] || continue
   d="$(dirname "$f")"
   while [ "$d" != "." ] && [ ! -f "$d/build.gradle.kts" ]; do d="$(dirname "$d")"; done
   [ "$d" != "." ] && add "$d"
 done <<< "$changed"
+# Modules without their own tests (fixtures/API-only): also test direct consumers.
+for m in $modules; do
+  [ -d "$m/src/test" ] && continue
+  acc="$(echo "$m" | tr / . | sed -E 's/-([a-z])/\U\1/g')"
+  while IFS= read -r bf; do
+    c="$(dirname "$bf")"; [ "$c" != "$m" ] && add "$c"
+  done < <(grep -rlE --include=build.gradle.kts "project\(\":${m//\//:}\"\)|projects\.${acc//./\\.}([^A-Za-z0-9]|$)" . 2>/dev/null | sed 's|^\./||' || true)
+done
 for m in $CORE_MODULES; do [ -f "$m/build.gradle.kts" ] && add "$m"; done
 
 tasks=""; tested=""; skipped=""
@@ -37,7 +47,7 @@ for m in $modules; do
   if [ "$m" = "app" ]; then t=":app:testGplayDebugUnitTest"
   else
     p=":$(echo "$m" | tr / :)"
-    if grep -qE 'kotlin\.jvm|java-library|kotlin\("jvm"\)|libs\.plugins\.kotlin\.jvm' "$m/build.gradle.kts" && ! grep -q 'android' "$m/build.gradle.kts"; then t="$p:test"; else t="$p:testDebugUnitTest"; fi
+    if grep -qE 'io\.element\.jvm-library|kotlin\.jvm|java-library|kotlin\("jvm"\)|libs\.plugins\.kotlin\.jvm' "$m/build.gradle.kts" && ! grep -q 'android' "$m/build.gradle.kts"; then t="$p:test"; else t="$p:testDebugUnitTest"; fi
   fi
   case "$m" in tests/konsist*) skipped="$skipped $m(heavy)"; continue;; esac
   tasks="$tasks $t"; tested="$tested $m"
