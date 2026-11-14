@@ -2,9 +2,10 @@ name: pr-check
 on: pull_request
 permissions:
   contents: read
-# Fast gate (target < 5 min). Gradle lint/unit tests are not run here: dependency
-# downloads from the dev VM exceed 25 min (slow external network), see PR description.
-# Full Gradle checks stay on the upstream GitHub workflows.
+# fast-gate: brand guard + XML sanity (target < 5 min).
+# gradle-setup / gradle-lint / gradle-test: Android SDK setup, lint, unit tests inside the 5 GB runner container (heavy cap).
+# Gradle home and Android SDK live in named docker volumes so only the first
+# run pays the slow dependency download (dev VM external network is slow).
 jobs:
   pr-check:
     runs-on: dev-vm
@@ -27,3 +28,110 @@ jobs:
           print('checked', len(files), 'xml files,', bad, 'bad')
           sys.exit(1 if bad else 0)
           PY
+
+  gradle-setup:
+    runs-on: dev-vm
+    container:
+      image: eclipse-temurin:21-jdk
+      options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+    timeout-minutes: 30
+    env:
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx2g -Pkotlin.daemon.jvmargs=-Xmx1g
+    steps:
+      - name: "[1/4] apt packages"
+        run: |
+          set -x
+          echo "=== STEP 1/4: apt packages ==="
+          apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
+      - uses: actions/checkout@v4
+      - name: "[2/4] env, volumes and memory check"
+        run: |
+          set -x
+          echo "=== STEP 2/4: env/volumes ==="
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          id; df -h /root/.gradle /opt/android-sdk || true
+          ls -la /opt/android-sdk /root/.gradle || true
+          free -m
+          cat /sys/fs/cgroup/memory.max 2>/dev/null || true
+          # act_runner ignores -v in container.options, so the dirs may not exist: create them (cache is best-effort).
+          mkdir -p /opt/android-sdk /root/.gradle
+          touch /opt/android-sdk/.w /root/.gradle/.w && echo "dirs writable"
+      - name: "[3-5/6] Android SDK (cmdline-tools, licenses, platform, build-tools)"
+        run: bash scripts/ci-android-sdk.sh
+      - name: "[4/4] Gradle wrapper download and version"
+        run: |
+          set -x
+          echo "=== STEP 4/4: gradle wrapper ==="
+          java -version
+          ./gradlew --version --no-daemon --console=plain
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          free -m
+          echo "::error::gradle-setup failed"
+          for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
+            echo "=== $f"; tail -n 60 "$f"
+          done
+
+
+  gradle-lint:
+    runs-on: dev-vm
+    container:
+      image: eclipse-temurin:21-jdk
+      options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+    timeout-minutes: 120
+    needs: [gradle-setup]
+    env:
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+      GRADLE_ARGS: --no-daemon --no-parallel --max-workers=1 -Dorg.gradle.workers.max=1 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3500m -Pkotlin.compiler.execution.strategy=in-process -Pandroid.lint.useBuildCache=false
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
+      - uses: actions/checkout@v4
+      - name: Android SDK
+        run: bash scripts/ci-android-sdk.sh
+      - name: Android lint
+        run: ./gradlew :app:lintGplayDebug $GRADLE_ARGS
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          free -m
+          echo "::error::gradle-lint failed"
+          for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
+            echo "=== $f"; tail -n 60 "$f"
+          done
+
+
+  gradle-test:
+    runs-on: dev-vm
+    container:
+      image: eclipse-temurin:21-jdk
+      options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
+    timeout-minutes: 55
+    needs: [gradle-setup]
+    env:
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.compiler.execution.strategy=in-process
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Android SDK
+        run: bash scripts/ci-android-sdk.sh
+      - name: Unit tests (changed modules + core set)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/ci-android-unit-tests.sh
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          free -m
+          echo "::error::gradle-test failed"
+          for f in $(find . -path "*/build/reports/*" \( -name "*.txt" -o -name "*.xml" \) -not -path "*/node_modules/*" 2>/dev/null | head -20); do
+            echo "=== $f"; tail -n 60 "$f"
+          done
