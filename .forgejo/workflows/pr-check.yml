@@ -30,7 +30,7 @@ jobs:
           PY
 
   gradle-setup:
-    runs-on: dev-vm
+    runs-on: dev-vm-heavy
     container:
       image: eclipse-temurin:21-jdk
       options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
@@ -77,7 +77,7 @@ jobs:
 
 
   gradle-lint:
-    runs-on: dev-vm
+    runs-on: dev-vm-heavy
     container:
       image: eclipse-temurin:21-jdk
       options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
@@ -105,7 +105,7 @@ jobs:
 
 
   gradle-test:
-    runs-on: dev-vm
+    runs-on: dev-vm-heavy
     container:
       image: eclipse-temurin:21-jdk
       options: --memory=5g -v s2-android-gradle-home:/root/.gradle -v s2-android-sdk:/opt/android-sdk
