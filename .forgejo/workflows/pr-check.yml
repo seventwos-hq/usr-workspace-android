@@ -4,6 +4,10 @@ on:
     branches: [main, develop]
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # fast-gate: brand guard + XML sanity (target < 5 min).
 # gradle-setup / gradle-lint / gradle-test: Android SDK setup, lint, unit tests inside the 5 GB runner container (heavy cap).
 # Gradle home and Android SDK live in named docker volumes so only the first
