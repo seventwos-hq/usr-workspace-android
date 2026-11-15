@@ -139,14 +139,20 @@ class TestRealFiles(unittest.TestCase):
         # hermetic: git identity verification is covered with synthetic
         # repositories below and remains mandatory in the production
         # workflow after it fetches the pinned upstream history.
-        rc = v.main(
-            [
-                "--root",
-                str(SEVENTWOS_ROOT),
-                "--base-ref",
-                "9439f8de737a49bc91561474d1c0085b2d4c744c",
-            ]
-        )
+        # Build a throwaway repo holding the current .seventwos tree as its
+        # prior commit, so the test does not depend on any fixed commit id.
+        import shutil
+
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            _init_repo(repo)
+            shutil.copytree(SEVENTWOS_ROOT, repo / ".seventwos")
+            shutil.copytree(WORKFLOWS_ROOT, repo / ".github" / "workflows")
+            base = _commit_all(repo, "baseline")
+            _git(repo, "commit", "-q", "--allow-empty", "-m", "next")
+            rc = v.main(
+                ["--root", str(repo / ".seventwos"), "--base-ref", base]
+            )
         self.assertEqual(rc, 0)
 
     def test_workflow_hardening_passes_on_real_workflows(self):
