@@ -9,7 +9,7 @@
 # do not exit when any command fails (issue with git flow)
 set +e
 
-gitHubRepo="seventwos-app/usr-workspace-android"
+gitHubRepo="seventwos-hq/usr-workspace-android"
 applicationId="org.seventwos.workspace"
 productName="Seventwos Workspace for Android"
 

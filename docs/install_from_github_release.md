@@ -52,11 +52,11 @@ repository debug key is development-only and must never be used for a release.
 
 You can clone the project by running:
 ```bash
-git clone git@github.com:seventwos-app/usr-workspace-android.git
+git clone git@github.com:seventwos-hq/usr-workspace-android.git
 ```
 or
 ```bash
-git clone https://github.com/seventwos-app/usr-workspace-android.git
+git clone https://github.com/seventwos-hq/usr-workspace-android.git
 ```
 
 You will also need to install [bundletool](https://developer.android.com/studio/command-line/bundletool). On MacOS, you can run the following command:
@@ -67,7 +67,7 @@ brew install bundletool
 
 ### Steps
 
-1. Open the GitHub release that you want to install from https://github.com/seventwos-app/usr-workspace-android/releases
+1. Open the GitHub release that you want to install from https://github.com/seventwos-hq/usr-workspace-android/releases
 2. Download the asset `app-gplay-release.aab`. This is the signed bundle produced and verified by the protected
    release process; the filename does not include a `-signed` suffix.
 3. Navigate to the folder where you cloned the project and run the following command. Bundletool

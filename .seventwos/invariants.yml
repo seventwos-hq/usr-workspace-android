@@ -108,7 +108,7 @@ invariants:
       level"). Any workflow change that introduces a new third-party
       Action not already covered by this allow-list will fail at
       startup, not at review time.
-    evidence: "gh api repos/seventwos-app/usr-workspace-android/actions/permissions/selected-actions (2026-09-20); gh api -X PUT ... -> 409 Conflict"
+    evidence: "gh api repos/seventwos-hq/usr-workspace-android/actions/permissions/selected-actions (2026-09-20); gh api -X PUT ... -> 409 Conflict"
     upstream_sync_guidance: >
       Before adding/upgrading a third-party Action in any workflow,
       confirm its owner is already present in the org/enterprise

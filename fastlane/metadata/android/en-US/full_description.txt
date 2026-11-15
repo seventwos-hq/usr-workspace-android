@@ -2,7 +2,7 @@ Freedom to communicate on your own terms
 
 For individuals and communities - private communication between family, friends, hobby groups, clubs, etc.
 
-Seventwos Workspace gives you fast, secure and private instant messaging and video calls built on Matrix, the open standard for real-time communication. This is a free and open-source app maintained at https://github.com/seventwos-app/usr-workspace-android.
+Seventwos Workspace gives you fast, secure and private instant messaging and video calls built on Matrix, the open standard for real-time communication. This is a free and open-source app maintained at https://github.com/seventwos-hq/usr-workspace-android.
 
 Stay in touch with friends, family and communities with:
  • Real time messaging & video calls

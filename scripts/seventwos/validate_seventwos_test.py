@@ -477,8 +477,8 @@ seed:
             seventwos_dir = tmp / ".seventwos"
             seventwos_dir.mkdir()
             _write(seventwos_dir, "state.yml", state_text)
-            _git(tmp, "remote", "add", "origin", "https://github.com/seventwos-app/usr-workspace-android.git")
-            for owner in ("seventwos-app", "seventwos-hq"):
+            _git(tmp, "remote", "add", "origin", "https://github.com/seventwos-hq/usr-workspace-android.git")
+            for owner in ("seventwos-hq",):
                 for origin in (
                     f"https://github.com/{owner}/usr-workspace-android",
                     f"https://github.com/{owner}/usr-workspace-android.git/",
@@ -494,14 +494,14 @@ seed:
 
             for origin in (
                 "https://github.com/seventwos-hq/unrelated.git",
-                "https://github.com/seventwos-app/unrelated.git",
-                "https://github.com/not-seventwos-app/usr-workspace-android.git",
-                "https://github.com/seventwos-app-malicious/usr-workspace-android.git",
-                "https://evil.example/seventwos-app/usr-workspace-android.git",
-                "https://github.com.evil.example/seventwos-app/usr-workspace-android.git",
-                "https://github.com/other/usr-workspace-android.git?seventwos-app",
-                "https://github.com/seventwos-app/usr-workspace-android/extra.git",
-                "https://github.com/seventwos-app/usr-workspace-android.git#fragment",
+                "https://github.com/seventwos-hq/unrelated.git",
+                "https://github.com/not-seventwos-hq/usr-workspace-android.git",
+                "https://github.com/seventwos-hq-malicious/usr-workspace-android.git",
+                "https://evil.example/seventwos-hq/usr-workspace-android.git",
+                "https://github.com.evil.example/seventwos-hq/usr-workspace-android.git",
+                "https://github.com/other/usr-workspace-android.git?seventwos-hq",
+                "https://github.com/seventwos-hq/usr-workspace-android/extra.git",
+                "https://github.com/seventwos-hq/usr-workspace-android.git#fragment",
                 "https://user:example-token@github.com/seventwos-hq/usr-workspace-android.git",
             ):
                 with self.subTest(origin=origin):

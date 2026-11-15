@@ -8,7 +8,7 @@
 # do not exit when any command fails, failures are handled explicitly by the script
 set +e
 
-gitHubRepo="seventwos-app/usr-workspace-android"
+gitHubRepo="seventwos-hq/usr-workspace-android"
 applicationId="org.seventwos.workspace"
 productName="Seventwos Workspace for Android"
 

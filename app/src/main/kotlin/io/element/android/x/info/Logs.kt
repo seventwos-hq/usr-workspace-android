@@ -22,7 +22,7 @@ fun logApplicationInfo(context: Context, sdkGitSha: String) {
     val date = SimpleDateFormat("MM-dd HH:mm:ss.SSSZ", Locale.US).format(Date())
     listOf(
         " Application version: $appVersion",
-        " Seventwos Workspace: https://github.com/seventwos-app/usr-workspace-android/commit/${BuildConfig.GIT_REVISION}",
+        " Seventwos Workspace: https://github.com/seventwos-hq/usr-workspace-android/commit/${BuildConfig.GIT_REVISION}",
         " SDK      : https://github.com/matrix-org/matrix-rust-sdk/commit/$sdkGitSha",
         " Local time: $date",
     )

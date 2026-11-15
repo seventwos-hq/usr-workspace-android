@@ -60,11 +60,8 @@ except ImportError:  # pragma: no cover - exercised only when PyYAML missing
 # being checked against them. Changing what this fork/upstream relationship
 # *is* requires changing this script (and therefore going through normal
 # code review), not just editing YAML.
-EXPECTED_FORK_OWNER = "seventwos-app"
-EXPECTED_ORIGIN_REPOSITORIES = (
-    f"{EXPECTED_FORK_OWNER}/usr-workspace-android",
-    "seventwos-hq/usr-workspace-android",
-)
+EXPECTED_FORK_OWNER = "seventwos-hq"
+EXPECTED_ORIGIN_REPOSITORIES = (f"{EXPECTED_FORK_OWNER}/usr-workspace-android",)
 EXPECTED_OUR_BRANCH = "develop"
 EXPECTED_UPSTREAM_REPO = "element-hq/element-x-android"
 EXPECTED_UPSTREAM_BRANCH = "develop"

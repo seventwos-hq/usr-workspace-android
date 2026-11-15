@@ -23,8 +23,8 @@ seed:
     available evidence and must not be assumed.
 
   fork:
-    origin_remote: "https://github.com/seventwos-app/usr-workspace-android.git"
-    origin_owner: "seventwos-app"
+    origin_remote: "https://github.com/seventwos-hq/usr-workspace-android.git"
+    origin_owner: "seventwos-hq"
     default_branch: "develop"
     is_github_fork_relationship: true
     github_reported_parent: "element-hq/element-x-android"

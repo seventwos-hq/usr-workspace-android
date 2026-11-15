@@ -40,7 +40,7 @@ python3 scripts/seventwos/validate_seventwos.py --base-ref origin/develop
 
 CI also uses `--verify-git-identity` after fetching the recorded commit objects.
 It recomputes the immutable seed's merge-base and accepts only the exact GitHub
-repository `seventwos-app/usr-workspace-android` or its canonical transferred
+repository `seventwos-hq/usr-workspace-android` or its canonical transferred
 location, `seventwos-hq/usr-workspace-android`, using HTTPS or Git-over-SSH.
 The historical `seed` remains unchanged; unrelated repositories, lookalike
 hosts/owners, and URLs with additional paths or credentials are rejected.
