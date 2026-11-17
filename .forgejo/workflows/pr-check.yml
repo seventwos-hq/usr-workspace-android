@@ -44,6 +44,7 @@ jobs:
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
+      GRADLE_OPTS: -Xmx256m
       GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx2g -Pkotlin.daemon.jvmargs=-Xmx1g
     steps:
       - name: "[1/4] apt packages"
@@ -92,14 +93,15 @@ jobs:
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-      GRADLE_ARGS: --no-daemon --no-parallel --max-workers=1 -Dorg.gradle.workers.max=1 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3500m -Pkotlin.compiler.execution.strategy=in-process -Pandroid.lint.useBuildCache=false
+      GRADLE_OPTS: -Xmx256m
+      GRADLE_ARGS: --no-daemon --no-parallel --max-workers=1 -Dorg.gradle.workers.max=1 --stacktrace --console=plain -Pkotlin.compiler.execution.strategy=in-process -Pandroid.lint.useBuildCache=false
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
       - name: Android SDK
         run: bash scripts/ci-android-sdk.sh
       - name: Android lint
-        run: ./gradlew :app:lintGplayDebug $GRADLE_ARGS
+        run: ./gradlew :app:lintGplayDebug $GRADLE_ARGS "-Dorg.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=768m -XX:+UseSerialGC"
       - name: Diagnostics on failure
         if: failure()
         run: |
@@ -120,7 +122,8 @@ jobs:
     env:
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx3g -Pkotlin.compiler.execution.strategy=in-process
+      GRADLE_OPTS: -Xmx256m
+      GRADLE_ARGS: --no-daemon --max-workers=2 --stacktrace --console=plain -Dorg.gradle.jvmargs=-Xmx2g -Pkotlin.compiler.execution.strategy=in-process
     steps:
       - run: apt-get update && apt-get install -y --no-install-recommends git nodejs unzip curl ca-certificates
       - uses: actions/checkout@v4
