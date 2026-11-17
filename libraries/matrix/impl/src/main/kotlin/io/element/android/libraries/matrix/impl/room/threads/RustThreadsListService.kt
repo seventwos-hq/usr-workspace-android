@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -66,6 +67,8 @@ class RustThreadsListService(
                 updated.apply(diff, contentMapper)
                 items.value = updated
             }
+            // Fetching and mapping the items can be costly, do not do it on the main thread
+            .flowOn(roomDispatcher)
             .launchIn(roomCoroutineScope)
     }
 

@@ -20,6 +20,7 @@ import extension.allFeaturesImpl
 import extension.allLibrariesImpl
 import extension.allServicesImpl
 import extension.buildConfigFieldStr
+import extension.environmentOrGradleValue
 import extension.locales
 import extension.setupDependencyInjection
 import extension.testCommonDependencies
@@ -272,7 +273,6 @@ dependencies {
     implementation(projects.features.migration.api)
     implementation(projects.appnav)
     implementation(projects.appconfig)
-    implementation(projects.libraries.uiStrings)
     implementation(projects.services.analytics.compose)
 
     if (ModulesConfig.pushProvidersConfig.includeFirebase) {
@@ -290,18 +290,13 @@ dependencies {
     implementation(libs.androidx.splash)
     implementation(libs.androidx.core)
     implementation(libs.androidx.corektx)
-    implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.startup)
     implementation(libs.androidx.preference)
-    implementation(libs.coil)
 
     implementation(platform(libs.network.okhttp.bom))
     implementation(libs.network.okhttp.logging)
-    implementation(libs.serialization.json)
-
-    implementation(libs.matrix.emojibase.bindings)
 
     testCommonDependencies(libs)
     testImplementation(projects.libraries.matrix.test)

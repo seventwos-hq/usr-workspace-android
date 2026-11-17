@@ -190,7 +190,9 @@ private const val STUCK_STABLE_FRAME_COUNT = 3
 fun SheetState.hide(coroutineScope: CoroutineScope, then: suspend () -> Unit) {
     coroutineScope.launch {
         hide()
-        then()
+        if (!isVisible) {
+            then()
+        }
     }
 }
 
