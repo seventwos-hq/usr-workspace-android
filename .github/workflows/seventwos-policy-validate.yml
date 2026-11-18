@@ -19,7 +19,7 @@ name: Seventwos policy validate
 on:
   pull_request:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
     paths:
       - ".seventwos/**"
       - "scripts/seventwos/**"
