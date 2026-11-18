@@ -109,3 +109,18 @@ class BomContent(RepoCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SubmoduleContent(RepoCase):
+    def test_gitlink_entry_is_skipped_explicitly(self):
+        # a submodule whose commit is absent from this repository (never fetched)
+        base = self.commit({"a.txt": b"x\n"})
+        self.git("update-index", "--add", "--cacheinfo", "160000,%s,sub" % ("1" * 40))
+        self.git("commit", "-q", "-m", "sub")
+        self.assertIsNone(dc.blob_at_head(b"sub", 1))
+        self.assertEqual(self.scan(base), [])
+
+    def test_missing_path_still_fails_closed(self):
+        self.commit({"a.txt": b"x\n"})
+        with self.assertRaises(dc.InputError):
+            dc.blob_at_head(b"nope.txt", 2)

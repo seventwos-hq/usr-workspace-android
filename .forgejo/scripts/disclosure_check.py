@@ -333,9 +333,16 @@ def blob_at_head(path, num=0):
     A failed lookup is an input error, never a reason to skip the file.
     """
     spec = b"HEAD:" + path
+    # the tree entry mode is read first: a submodule (gitlink) commit is not in this
+    # repository, so cat-file cannot resolve it even though the entry is valid
+    entry = subprocess.run(("git", "ls-tree", "-z", "HEAD", "--", path), capture_output=True)
+    if entry.returncode != 0 or not entry.stdout:
+        raise InputError("cannot look up changed file #%d at HEAD" % num)
+    if entry.stdout.split(b" ", 1)[0] == b"160000":
+        return None
     kind = subprocess.run(("git", "cat-file", "-t", spec), capture_output=True)
     if kind.returncode != 0:
-        raise InputError("cannot look up changed file at HEAD")
+        raise InputError("cannot look up changed file #%d at HEAD" % num)
     if kind.stdout.strip() != b"blob":
         return None
     size = subprocess.run(("git", "cat-file", "-s", spec), capture_output=True)
