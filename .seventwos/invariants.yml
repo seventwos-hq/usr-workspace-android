@@ -15,7 +15,7 @@ invariants:
     category: identity
     statement: >
       The Android application ID served to end users is
-      "org.seventwos.workspace" (BuildTimeConfig.APPLICATION_ID), not
+      "com.seventwos.workspace" (BuildTimeConfig.APPLICATION_ID), not
       "io.element.android.x" (the upstream namespace).
     evidence: "plugins/src/main/kotlin/config/BuildTimeConfig.kt"
     upstream_sync_guidance: >

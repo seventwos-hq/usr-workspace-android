@@ -48,7 +48,7 @@ To keep selective upstream synchronisation with `element-hq/element-x-android` t
   - `app/src/main/kotlin/io/element/android/x/initializer/` (`PlatformInitializer.kt`) — startup initialisers.
   - `appnav/src/main/kotlin/io/element/android/appnav/intent/` (`IntentResolver.kt`) — deep-link and intent routing.
 - **Product identity, branding & endpoint configuration (`branding` in `.seventwos/path-map.yml`, `INV-IDENTITY-001/003`, `INV-ENDPOINT-001/002`, `INV-TELEMETRY-001`)**:
-  - `plugins/src/main/kotlin/config/BuildTimeConfig.kt` — sets `APPLICATION_ID = "org.seventwos.workspace"` and `APPLICATION_NAME = "Seventwos Workspace"`, sources push and telemetry/crash-reporting endpoints from `SEVENTWOS_ANDROID_*` build-time environment variables (fail-closed), and keeps map/legal URLs as Seventwos-controlled constants (`https://workspace.seventwos.org`) or `null` placeholders (`INV-ENDPOINT-002`; never hardcode upstream Element URLs).
+  - `plugins/src/main/kotlin/config/BuildTimeConfig.kt` — sets `APPLICATION_ID = "com.seventwos.workspace"` and `APPLICATION_NAME = "Seventwos Workspace"`, sources push and telemetry/crash-reporting endpoints from `SEVENTWOS_ANDROID_*` build-time environment variables (fail-closed), and keeps map/legal URLs as Seventwos-controlled constants (`https://workspace.seventwos.com`) or `null` placeholders (`INV-ENDPOINT-002`; never hardcode upstream Element URLs).
   - `appconfig/src/main/kotlin/io/element/android/appconfig/ApplicationConfig.kt` — user-facing product names (`Seventwos Workspace`).
   - `appicon/` and `fastlane/` — application icons and store metadata.
 - **Upstream sync policy & ledger (`seventwos_policy_system`)**:

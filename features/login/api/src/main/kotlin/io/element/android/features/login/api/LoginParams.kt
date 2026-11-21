@@ -13,7 +13,7 @@ import kotlinx.parcelize.Parcelize
 
 /**
  * Parameters to start the login flow, when the application is opened
- * from a workspace.seventwos.org/login link.
+ * from a workspace.seventwos.com/login link.
  */
 @Parcelize
 data class LoginParams(

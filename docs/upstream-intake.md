@@ -14,7 +14,7 @@ Read `AGENTS.md` and `.seventwos/policy.yml` first; `.seventwos/ledger.jsonl` is
 4. Re-apply and verify branding:
    - `scripts/brand-guard.sh` must print `brand-guard: OK` (run on current develop: see PR description for result).
    - New legitimate matches only: justify, then `scripts/brand-guard.sh --update` (regenerates baseline in `.brand-guard-allowlist`) and review the diff (unverified). Prefer rebranding over raising a baseline.
-   - Check `APPLICATION_ID` (`org.seventwos.workspace`) and `URL_WEBSITE` in `plugins/src/main/kotlin/config/BuildTimeConfig.kt`, and the applicationId assignment in `app/build.gradle.kts`.
+   - Check `APPLICATION_ID` (`com.seventwos.workspace`) and `URL_WEBSITE` in `plugins/src/main/kotlin/config/BuildTimeConfig.kt`, and the applicationId assignment in `app/build.gradle.kts`.
 5. Quick checks (all unverified; Gradle needs JDK + Android SDK, see `docs/_developer_onboarding.md`):
    - `python3 -m unittest scripts/seventwos/validate_seventwos_test.py -v` (unverified)
    - `python3 scripts/seventwos/validate_seventwos.py --base-ref origin/develop` (unverified)
@@ -28,8 +28,8 @@ Read `AGENTS.md` and `.seventwos/policy.yml` first; `.seventwos/ledger.jsonl` is
 
 ## Invariants (must hold after every intake)
 
-- Application ID stays `org.seventwos.workspace` (INV-IDENTITY-001), never `io.element.android.x`.
-- Default homeserver is `workspace.seventwos.org` (`AccountProviderDataSource`, `DefaultLoginIntentResolver.LOGIN_HINT_HOST`, `BuildTimeConfig.URL_WEBSITE`).
+- Application ID stays `com.seventwos.workspace` (INV-IDENTITY-001), never `io.element.android.x`.
+- Default homeserver is `workspace.seventwos.com` (`AccountProviderDataSource`, `DefaultLoginIntentResolver.LOGIN_HINT_HOST`, `BuildTimeConfig.URL_WEBSITE`).
 - `scripts/brand-guard.sh` passes.
 - No `element.io` / `riot.im` / `app.element.*` URLs outside `.brand-guard-allowlist`.
 - Seventwos invariants in `.seventwos/invariants.yml` still hold; weakening one needs review and a ledger entry.

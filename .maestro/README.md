@@ -22,7 +22,7 @@ From root dir of the project
 
 ```shell
 maestro test \
-    -e MAESTRO_APP_ID=org.seventwos.workspace.debug \
+    -e MAESTRO_APP_ID=com.seventwos.workspace.debug \
     -e MAESTRO_USERNAME=user1 \
     -e MAESTRO_PASSWORD=123 \
     -e MAESTRO_RECOVERY_KEY=ABC \

@@ -73,7 +73,7 @@ class ConfirmAccountProviderPresenter(
         }
 
         // Editable input, seeded from the current (history-defaulted) account provider until the user edits it.
-        // Displayed without the scheme, so the field shows e.g. "workspace.seventwos.org" rather than "https://workspace.seventwos.org".
+        // Displayed without the scheme, so the field shows e.g. "workspace.seventwos.com" rather than "https://workspace.seventwos.com".
         var userInput by rememberSaveable { mutableStateOf<String?>(null) }
         val accountProviderInput = userInput ?: accountProvider.friendlyServerName()
 
@@ -133,7 +133,7 @@ class ConfirmAccountProviderPresenter(
                     // For a user ID the homeserver is the domain part (after the ':'), keeping any port.
                     val host = if (isUserId) accountProvider.substringAfter(":") else accountProvider
                     submittedLoginHint = "mxid:$accountProvider".takeIf { isUserId && !params.isAccountCreation }
-                    // Default the scheme to https:// so entering a bare host (e.g. "workspace.seventwos.org") works.
+                    // Default the scheme to https:// so entering a bare host (e.g. "workspace.seventwos.com") works.
                     val accountProviderUrl = host.ensureProtocol()
                     submittedAccountProvider = accountProviderUrl
                     changeServerState.eventSink(

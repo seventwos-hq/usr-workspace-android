@@ -38,7 +38,7 @@ class AccountProviderTest {
 
     @Test
     fun `matrixOrgAccountProvider is known by its server name`() {
-        assertThat(matrixOrgAccountProvider.serverNameOrBaseUrl()).isEqualTo("workspace.seventwos.org")
+        assertThat(matrixOrgAccountProvider.serverNameOrBaseUrl()).isEqualTo("workspace.seventwos.com")
     }
 
     @Test

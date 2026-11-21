@@ -30,7 +30,7 @@ class DefaultLoginIntentResolver : LoginIntentResolver {
     }
 
     private companion object {
-        const val LOGIN_HINT_HOST = "workspace.seventwos.org"
+        const val LOGIN_HINT_HOST = "workspace.seventwos.com"
         const val LOGIN_HINT_PATH_PREFIX = "/login"
     }
 }

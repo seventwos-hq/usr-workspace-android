@@ -49,7 +49,7 @@
         Using launchMode singleTask to avoid multiple instances of the Activity
         when the app is already open. This is important for incoming share (see
         https://github.com/element-hq/element-x-android/issues/4074) and for opening
-        the application from a workspace.seventwos.org link.
+        the application from a workspace.seventwos.com link.
         -->
         <activity
             android:name=".MainActivity"
@@ -92,8 +92,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="https" />
-                <!-- Matching asset file: https://workspace.seventwos.org/.well-known/assetlinks.json -->
-                <data android:host="workspace.seventwos.org" />
+                <!-- Matching asset file: https://workspace.seventwos.com/.well-known/assetlinks.json -->
+                <data android:host="workspace.seventwos.com" />
             </intent-filter>
             <!--
               matrix: links

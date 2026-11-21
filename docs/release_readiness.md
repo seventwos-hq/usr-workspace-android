@@ -1,7 +1,7 @@
 # Android release readiness
 
 The repository is configured for the Seventwos-owned Android application identity
-`org.seventwos.workspace`. The Kotlin namespace remains `io.element.android.x` to preserve the
+`com.seventwos.workspace`. The Kotlin namespace remains `io.element.android.x` to preserve the
 upstream package structure and provenance.
 
 ## Release signing
@@ -28,9 +28,9 @@ Repository configuration alone cannot complete a production release. Seventwos m
 - A Google Play developer account, application record, store listing, and any required declarations.
 - Public privacy, acceptable-use, support, and security-contact pages. No placeholder URLs are
   embedded in the application.
-- `https://workspace.seventwos.org/.well-known/assetlinks.json` containing
-  `org.seventwos.workspace` and the final production certificate SHA-256 fingerprint.
-- OAuth client metadata and redirect registrations for `org.seventwos.workspace` with every
+- `https://workspace.seventwos.com/.well-known/assetlinks.json` containing
+  `com.seventwos.workspace` and the final production certificate SHA-256 fingerprint.
+- OAuth client metadata and redirect registrations for `com.seventwos.workspace` with every
   supported Matrix authentication service.
 - Optional Seventwos-owned observability, bug-reporting, call, and push infrastructure if those
   features are enabled.
@@ -49,7 +49,7 @@ All inherited Element-operated integrations are off by default.
 | UnifiedPush | `SEVENTWOS_ANDROID_ENABLE_UNIFIED_PUSH=true`, `SEVENTWOS_ANDROID_UNIFIED_PUSH_GATEWAY`, `SEVENTWOS_ANDROID_UNIFIED_PUSH_DISTRIBUTORS_URL`, `SEVENTWOS_ANDROID_PUSHER_APP_ID` |
 
 Firebase additionally requires a Seventwos Firebase Android app registered for
-`org.seventwos.workspace`, FCM credentials, and a Seventwos-operated Matrix push gateway such as
+`com.seventwos.workspace`, FCM credentials, and a Seventwos-operated Matrix push gateway such as
 Sygnal. Firebase resource files and `google-services.json` are ignored and must be supplied
 securely at build time. Partial push configuration is treated as disabled.
 
