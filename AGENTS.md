@@ -16,6 +16,16 @@ Kotlin 2.4 + Jetpack Compose, Gradle (Kotlin DSL, version catalog), AGP 9.3, Mat
 - `.seventwos/` - policy/invariants/ledger (read policy.yml before structural changes)
 - `.github/workflows/` - CI; `.maestro/` - e2e flows
 
+## Adding the Seventwos layer on top of the fork (where we work)
+- **Preserve the upstream package namespace (`INV-IDENTITY-002`)**: Keep `io.element.android.*` Kotlin/Java packages, `namespace = "io.element.android.x"` in `app/build.gradle.kts`, and `io.element.*` convention plugin IDs intact so upstream syncs merge cleanly. User-facing identity is `APPLICATION_ID = "org.seventwos.workspace"` (`INV-IDENTITY-001`).
+- **Prefer additive modules + DI wiring over in-place upstream edits**:
+  - Build new Seventwos features and services as standalone Gradle modules under `features/<feature>/{api,impl}` or `services/<service>/{api,impl}` (auto-discovered by `settings.gradle.kts`).
+  - Wire Seventwos implementations and overrides through Metro DI in `app/src/main/kotlin/io/element/android/x/di/` (`AppBindingContainer.kt`, `ApplicationBindings.kt`), `app/src/main/kotlin/io/element/android/x/SeventwosWorkspaceApplication.kt`, `app/src/main/kotlin/io/element/android/x/initializer/`, and `appnav/src/main/kotlin/io/element/android/appnav/intent/`.
+- **Branding and endpoints (`INV-IDENTITY-003`, `INV-ENDPOINT-001/002`, `INV-TELEMETRY-001`)**:
+  - Product names and build-time endpoints live in `plugins/src/main/kotlin/config/BuildTimeConfig.kt` and `appconfig/src/main/kotlin/io/element/android/appconfig/ApplicationConfig.kt`. Source all service/push/telemetry endpoints from `SEVENTWOS_ANDROID_*` env vars (fail-closed; never hardcode upstream `element.io`/`matrix.org` defaults).
+- **Register new divergence in `.seventwos/`**:
+  - If you must modify an inherited upstream module not yet listed under `product_divergence` or `branding` in `.seventwos/path-map.yml`, add the path to `.seventwos/path-map.yml` (and any new behavioral rule to `.seventwos/invariants.yml`) and run `python3 scripts/seventwos/validate_seventwos.py --base-ref origin/main`.
+
 ## Setup / Build / Test / Lint (taken from .github/workflows; all unverified)
 - Build debug: `./gradlew :app:assembleGplayDebug :app:assembleFDroidDebug` (unverified)
 - Compile only: `./gradlew :app:compileGplayDebugKotlin` (unverified)
@@ -51,5 +61,5 @@ Any user-visible change (screens, layout, styling, branding, text, flows) must i
 - An "after" screenshot of every changed screen, and a "before" screenshot when an existing screen changed.
 - Android: capture from the emulator with `adb exec-out screencap -p > shot.png`.
 - Use realistic data, not empty states.
-- Attach screenshots to the Notion card and to the PR description.
+- Attach screenshots to the Planka card and to the PR description.
 - Missing screenshots = not approved.
