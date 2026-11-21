@@ -29,6 +29,31 @@ This is the product repository for Seventwos Workspace for Android. It is the so
 
 Changes in this repository should directly support the Android client. Shared services and cross-platform product material are maintained separately; the origins and licensing of upstream-derived code are documented below.
 
+## Fork separation and where we work
+
+To keep selective upstream synchronisation with `element-hq/element-x-android` tractable, the repository separates the **inherited upstream foundation** from the **Seventwos layer** and enforces the boundary through [`.seventwos/`](.seventwos/README.md) (`path-map.yml`, `invariants.yml`, `state.yml`, `ledger.jsonl`) and `scripts/seventwos/validate_seventwos.py`.
+
+### 1. Upstream compatibility boundary (preserve as-is)
+
+- **Package namespace & Gradle convention plugins (`compatibility_sensitive_identifier`, `INV-IDENTITY-002`)**: Keep the inherited `io.element.android.*` Kotlin/Java package prefix, `namespace = "io.element.android.x"` in `app/build.gradle.kts`, and `io.element.*` Gradle convention plugin IDs under `plugins/`. Preserving these identifiers avoids tree-wide rename conflicts during upstream syncs and keeps Matrix Rust SDK bindings and `ignoreDependencies(groupId = "io.element.android")` working unchanged.
+- **Private upstream submodule (`out_of_scope`, `INV-SUBMODULE-001`)**: `enterprise/` is an unpopulated upstream submodule and is never checked out or modified.
+
+### 2. Where Seventwos work lives (the Seventwos layer)
+
+- **New Seventwos features and services (preferred extension mechanism)**:
+  - Add new product capabilities as self-contained Gradle modules under `features/<feature>/{api,impl}` or `services/<service>/{api,impl}` (auto-included by `settings.gradle.kts`) and bind them via Metro dependency injection rather than rewriting inherited Element X feature modules in place.
+- **Application shell, DI bindings, startup & navigation (`product_divergence` in `.seventwos/path-map.yml`)**:
+  - `app/src/main/kotlin/io/element/android/x/SeventwosWorkspaceApplication.kt` — Seventwos `Application` entrypoint.
+  - `app/src/main/kotlin/io/element/android/x/di/` (`AppBindingContainer.kt`, `ApplicationBindings.kt`) — root Metro DI bindings where Seventwos implementations override or extend upstream bindings.
+  - `app/src/main/kotlin/io/element/android/x/initializer/` (`PlatformInitializer.kt`) — startup initialisers.
+  - `appnav/src/main/kotlin/io/element/android/appnav/intent/` (`IntentResolver.kt`) — deep-link and intent routing.
+- **Product identity, branding & environment-sourced endpoints (`branding` in `.seventwos/path-map.yml`, `INV-IDENTITY-001/003`, `INV-ENDPOINT-001/002`, `INV-TELEMETRY-001`)**:
+  - `plugins/src/main/kotlin/config/BuildTimeConfig.kt` — sets `APPLICATION_ID = "org.seventwos.workspace"`, `APPLICATION_NAME = "Seventwos Workspace"`, and sources all push, analytics, crash-reporting, map, and legal endpoints from `SEVENTWOS_ANDROID_*` build-time environment variables (fail-closed; never hardcode upstream Element URLs).
+  - `appconfig/src/main/kotlin/io/element/android/appconfig/ApplicationConfig.kt` — user-facing product names (`Seventwos Workspace`).
+  - `appicon/` and `fastlane/` — application icons and store metadata.
+- **Upstream sync policy & ledger (`seventwos_policy_system`)**:
+  - `.seventwos/` and `scripts/seventwos/` — whenever a Seventwos change introduces a new divergent path inside the inherited tree or a new product/security invariant, record it in `.seventwos/path-map.yml` and `.seventwos/invariants.yml` so future upstream syncs do not overwrite it.
+
 ## Provenance and licence
 
 This repository began as a fork of Element X Android and is now maintained as Seventwos Workspace for Android.
