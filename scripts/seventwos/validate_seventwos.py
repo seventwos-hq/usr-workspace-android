@@ -269,7 +269,14 @@ def validate_state_git_identity(root: Path, repo_root: Path, errors: list[str]) 
     seed = data.get("seed") or {}
     merge_base_sha = (seed.get("merge_base") or {}).get("sha")
     upstream_sha = (seed.get("upstream") or {}).get("head_sha_at_seed")
-    our_sha = (seed.get("our_branch_at_seed") or {}).get("head_sha_at_seed")
+    rewritten_our_sha = (
+        ((data.get("rewritten_seed") or {}).get("our_branch_at_seed") or {}).get(
+            "head_sha_at_seed"
+        )
+    )
+    our_sha = rewritten_our_sha or (seed.get("our_branch_at_seed") or {}).get(
+        "head_sha_at_seed"
+    )
 
     if not (merge_base_sha and upstream_sha and our_sha):
         errors.append(
