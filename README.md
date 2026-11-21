@@ -31,12 +31,12 @@ Changes in this repository should directly support the Android client. Shared se
 
 ## Fork separation and where we work
 
-To keep selective upstream synchronisation with `element-hq/element-x-android` tractable, the repository separates the **inherited upstream foundation** from the **Seventwos layer** and enforces the boundary through [`.seventwos/`](.seventwos/README.md) (`path-map.yml`, `invariants.yml`, `state.yml`, `ledger.jsonl`) and `scripts/seventwos/validate_seventwos.py`.
+To keep selective upstream synchronisation with `element-hq/element-x-android` tractable, the repository separates the **inherited upstream foundation** from the **Seventwos layer** and tracks the boundary in [`.seventwos/`](.seventwos/README.md) (`path-map.yml`, `invariants.yml`, `state.yml`, `ledger.jsonl`). `scripts/seventwos/validate_seventwos.py` enforces the structural integrity and anti-tamper rules of the `.seventwos/` policy metadata, while upstream sync reviews verify that product behavior and invariants are preserved.
 
 ### 1. Upstream compatibility boundary (preserve as-is)
 
 - **Package namespace & Gradle convention plugins (`compatibility_sensitive_identifier`, `INV-IDENTITY-002`)**: Keep the inherited `io.element.android.*` Kotlin/Java package prefix, `namespace = "io.element.android.x"` in `app/build.gradle.kts`, and `io.element.*` Gradle convention plugin IDs under `plugins/`. Preserving these identifiers avoids tree-wide rename conflicts during upstream syncs and keeps Matrix Rust SDK bindings and `ignoreDependencies(groupId = "io.element.android")` working unchanged.
-- **Private upstream submodule (`out_of_scope`, `INV-SUBMODULE-001`)**: `enterprise/` is an unpopulated upstream submodule and is never checked out or modified.
+- **Private upstream submodule (`out_of_scope`, `INV-SUBMODULE-001`)**: `enterprise/` is a private upstream submodule excluded from upstream assessment and sync tooling (`INV-SUBMODULE-001`).
 
 ### 2. Where Seventwos work lives (the Seventwos layer)
 
@@ -47,12 +47,12 @@ To keep selective upstream synchronisation with `element-hq/element-x-android` t
   - `app/src/main/kotlin/io/element/android/x/di/` (`AppBindingContainer.kt`, `ApplicationBindings.kt`) — root Metro DI bindings where Seventwos implementations override or extend upstream bindings.
   - `app/src/main/kotlin/io/element/android/x/initializer/` (`PlatformInitializer.kt`) — startup initialisers.
   - `appnav/src/main/kotlin/io/element/android/appnav/intent/` (`IntentResolver.kt`) — deep-link and intent routing.
-- **Product identity, branding & environment-sourced endpoints (`branding` in `.seventwos/path-map.yml`, `INV-IDENTITY-001/003`, `INV-ENDPOINT-001/002`, `INV-TELEMETRY-001`)**:
-  - `plugins/src/main/kotlin/config/BuildTimeConfig.kt` — sets `APPLICATION_ID = "org.seventwos.workspace"`, `APPLICATION_NAME = "Seventwos Workspace"`, and sources all push, analytics, crash-reporting, map, and legal endpoints from `SEVENTWOS_ANDROID_*` build-time environment variables (fail-closed; never hardcode upstream Element URLs).
+- **Product identity, branding & endpoint configuration (`branding` in `.seventwos/path-map.yml`, `INV-IDENTITY-001/003`, `INV-ENDPOINT-001/002`, `INV-TELEMETRY-001`)**:
+  - `plugins/src/main/kotlin/config/BuildTimeConfig.kt` — sets `APPLICATION_ID = "org.seventwos.workspace"` and `APPLICATION_NAME = "Seventwos Workspace"`, sources push and telemetry/crash-reporting endpoints from `SEVENTWOS_ANDROID_*` build-time environment variables (fail-closed), and keeps map/legal URLs as Seventwos-controlled constants (`https://workspace.seventwos.org`) or `null` placeholders (`INV-ENDPOINT-002`; never hardcode upstream Element URLs).
   - `appconfig/src/main/kotlin/io/element/android/appconfig/ApplicationConfig.kt` — user-facing product names (`Seventwos Workspace`).
   - `appicon/` and `fastlane/` — application icons and store metadata.
 - **Upstream sync policy & ledger (`seventwos_policy_system`)**:
-  - `.seventwos/` and `scripts/seventwos/` — whenever a Seventwos change introduces a new divergent path inside the inherited tree or a new product/security invariant, record it in `.seventwos/path-map.yml` and `.seventwos/invariants.yml` so future upstream syncs do not overwrite it.
+  - `.seventwos/` and `scripts/seventwos/` — whenever a Seventwos change introduces a new divergent path inside the inherited tree or a new product/security invariant, record it in `.seventwos/path-map.yml` and `.seventwos/invariants.yml` so upstream sync reviews preserve it.
 
 ## Provenance and licence
 
