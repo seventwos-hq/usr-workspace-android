@@ -13,6 +13,11 @@
 
 schema_version: 1
 
+rewritten_seed:
+  recorded_at: "2026-11-15"
+  ledger_entry: "LEDGER-0006"
+  our_branch_at_seed:
+    head_sha_at_seed: "e93d2fbd91aa0dd44c74359a2b506d4f5d799bbd"
 seed:
   recorded_at: "2026-09-20T12:32:23Z"
   recorded_by: "copilot-cli (session 0b4946e3-75e1-44d6-9567-460078704cd5)"
