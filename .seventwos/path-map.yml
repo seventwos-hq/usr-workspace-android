@@ -21,7 +21,7 @@ categories:
       from upstream; upstream changes to *sibling* logic in the same file
       still need manual review.
     evidence:
-      - "plugins/src/main/kotlin/config/BuildTimeConfig.kt: APPLICATION_ID = \"org.seventwos.workspace\", APPLICATION_NAME, URL_WEBSITE, SEVENTWOS_* env-driven service config"
+      - "plugins/src/main/kotlin/config/BuildTimeConfig.kt: APPLICATION_ID = \"com.seventwos.workspace\", APPLICATION_NAME, URL_WEBSITE, SEVENTWOS_* env-driven service config"
       - "appconfig/src/main/kotlin/io/element/android/appconfig/ApplicationConfig.kt: PRODUCTION_APPLICATION_NAME/DESKTOP_APPLICATION_NAME = \"Seventwos Workspace\""
       - "app/src/main/kotlin/io/element/android/x/SeventwosWorkspaceApplication.kt"
       - "app/src/main/res/values*/themes.xml, app/src/main/AndroidManifest.xml (branding-scoped resources)"

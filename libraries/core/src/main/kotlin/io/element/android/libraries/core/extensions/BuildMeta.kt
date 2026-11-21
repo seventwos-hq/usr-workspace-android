@@ -21,8 +21,8 @@ import io.element.android.libraries.core.meta.BuildType
  */
 fun BuildMeta.isSeventwosWorkspace(): Boolean {
     return when (buildType) {
-        BuildType.RELEASE -> applicationId == "org.seventwos.workspace"
-        BuildType.NIGHTLY -> applicationId == "org.seventwos.workspace.nightly"
-        BuildType.DEBUG -> applicationId == "org.seventwos.workspace.debug"
+        BuildType.RELEASE -> applicationId == "com.seventwos.workspace"
+        BuildType.NIGHTLY -> applicationId == "com.seventwos.workspace.nightly"
+        BuildType.DEBUG -> applicationId == "com.seventwos.workspace.debug"
     }
 }

@@ -17,17 +17,17 @@ import org.junit.Test
 class BuildMetaTest {
     @Test
     fun `isSeventwosWorkspace returns true for the release application id`() {
-        assertTrue(aBuildMeta(buildType = BuildType.RELEASE, applicationId = "org.seventwos.workspace").isSeventwosWorkspace())
+        assertTrue(aBuildMeta(buildType = BuildType.RELEASE, applicationId = "com.seventwos.workspace").isSeventwosWorkspace())
     }
 
     @Test
     fun `isSeventwosWorkspace returns true for the nightly application id`() {
-        assertTrue(aBuildMeta(buildType = BuildType.NIGHTLY, applicationId = "org.seventwos.workspace.nightly").isSeventwosWorkspace())
+        assertTrue(aBuildMeta(buildType = BuildType.NIGHTLY, applicationId = "com.seventwos.workspace.nightly").isSeventwosWorkspace())
     }
 
     @Test
     fun `isSeventwosWorkspace returns true for the debug application id`() {
-        assertTrue(aBuildMeta(buildType = BuildType.DEBUG, applicationId = "org.seventwos.workspace.debug").isSeventwosWorkspace())
+        assertTrue(aBuildMeta(buildType = BuildType.DEBUG, applicationId = "com.seventwos.workspace.debug").isSeventwosWorkspace())
     }
 
     @Test
@@ -37,7 +37,7 @@ class BuildMetaTest {
 
     @Test
     fun `isSeventwosWorkspace returns false when the build type and application id suffix mismatch`() {
-        assertFalse(aBuildMeta(buildType = BuildType.RELEASE, applicationId = "org.seventwos.workspace.debug").isSeventwosWorkspace())
+        assertFalse(aBuildMeta(buildType = BuildType.RELEASE, applicationId = "com.seventwos.workspace.debug").isSeventwosWorkspace())
     }
 
     private fun aBuildMeta(

@@ -11,11 +11,11 @@ package config
 object BuildTimeConfig {
     private fun environment(name: String): String? = System.getenv(name)?.takeIf(String::isNotBlank)
 
-    const val APPLICATION_ID = "org.seventwos.workspace"
+    const val APPLICATION_ID = "com.seventwos.workspace"
     const val APPLICATION_NAME = "Seventwos Workspace"
     val METADATA_HOST_REVERSED: String? = APPLICATION_ID
     val OAUTH_CLIENT_URL_PATH: String? = "apps/android"
-    val URL_WEBSITE: String? = "https://workspace.seventwos.org"
+    val URL_WEBSITE: String? = "https://workspace.seventwos.com"
     val URL_LOGO: String? = null
     val URL_COPYRIGHT: String? = null
     val URL_ACCEPTABLE_USE: String? = null

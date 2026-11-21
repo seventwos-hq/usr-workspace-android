@@ -63,7 +63,7 @@ jobs:
               tee "$RUNNER_TEMP/apksigner.txt"
             ! grep -qi "Android Debug" "$RUNNER_TEMP/apksigner.txt"
             "$ANDROID_HOME/build-tools/37.0.0/aapt" dump badging "$apk" |
-              grep -F "package: name='org.seventwos.workspace'"
+              grep -F "package: name='com.seventwos.workspace'"
           done
       - name: Upload verified artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -115,7 +115,7 @@ jobs:
           MAESTRO_INVITEE1_MXID: ${{ vars.MAESTRO_INVITEE1_MXID }}
           MAESTRO_INVITEE1_NAME: ${{ vars.MAESTRO_INVITEE1_NAME }}
           MAESTRO_INVITEE2_MXID: ${{ vars.MAESTRO_INVITEE2_MXID }}
-          MAESTRO_APP_ID: org.seventwos.workspace.debug
+          MAESTRO_APP_ID: com.seventwos.workspace.debug
         with:
           api-level: ${{ env.API_LEVEL }}
           arch: ${{ env.ARCH }}

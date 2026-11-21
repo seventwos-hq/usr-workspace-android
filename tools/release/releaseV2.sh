@@ -9,7 +9,7 @@
 set +e
 
 gitHubRepo="seventwos-hq/usr-workspace-android"
-applicationId="org.seventwos.workspace"
+applicationId="com.seventwos.workspace"
 productName="Seventwos Workspace for Android"
 
 printf "\n================================================================================\n"

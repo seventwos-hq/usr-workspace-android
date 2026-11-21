@@ -56,7 +56,7 @@ class ConfirmAccountProviderPresenterTest {
             val initialState = awaitItem()
             assertThat(initialState.isAccountCreation).isFalse()
             assertThat(initialState.submitEnabled).isTrue()
-            assertThat(initialState.accountProviderInput).isEqualTo("workspace.seventwos.org")
+            assertThat(initialState.accountProviderInput).isEqualTo("workspace.seventwos.com")
             assertThat(initialState.loginModeState.loginMode).isEqualTo(AsyncData.Uninitialized)
         }
     }
@@ -413,7 +413,7 @@ class ConfirmAccountProviderPresenterTest {
             val initialState = awaitItem()
             initialState.eventSink(ConfirmAccountProviderEvent.UserInputChanged("workspace.s"))
             val suggestionState = awaitState { it.accountProviderInput == "workspace.s" }
-            assertThat(suggestionState.accountProviderSuggestion).isEqualTo("workspace.seventwos.org")
+            assertThat(suggestionState.accountProviderSuggestion).isEqualTo("workspace.seventwos.com")
         }
     }
 

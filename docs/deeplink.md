@@ -13,18 +13,18 @@
 ## Introduction
 
 Seventwos Workspace supports Matrix links, the `seventwos-workspace://open` internal scheme, and
-verified HTTPS links on `workspace.seventwos.org`.
+verified HTTPS links on `workspace.seventwos.com`.
 
 ### Asset Links
 
 Before production release, publish the final signing certificate association at
-`https://workspace.seventwos.org/.well-known/assetlinks.json`. The certificate fingerprint cannot
+`https://workspace.seventwos.com/.well-known/assetlinks.json`. The certificate fingerprint cannot
 be populated until Seventwos creates the production signing key.
 
 ### Supported links
 
 Matrix protocol links (`matrix:`) remain supported. HTTPS links intended to open directly in this
-application must use `https://workspace.seventwos.org`.
+application must use `https://workspace.seventwos.com`.
 
 ## Developer tools
 
@@ -32,26 +32,26 @@ Using an Android 12 or higher emulator
 
 Ensure links verification is enabled
 ```bash
-adb shell am compat enable 175408749 org.seventwos.workspace.debug
+adb shell am compat enable 175408749 com.seventwos.workspace.debug
 ```
 
 Reset link verifications for the given package id
 ```bash
-adb shell pm set-app-links --package org.seventwos.workspace.debug 0 all
+adb shell pm set-app-links --package com.seventwos.workspace.debug 0 all
 ```
 
 Force the package id links to be verified
 ```bash
-adb shell pm verify-app-links --re-verify org.seventwos.workspace.debug
+adb shell pm verify-app-links --re-verify com.seventwos.workspace.debug
 ```
 
 Print the link verification of the package id
 ```bash
-adb shell pm get-app-links org.seventwos.workspace.debug
+adb shell pm get-app-links com.seventwos.workspace.debug
 ```
 
 ```
-  org.seventwos.workspace.debug:
+  com.seventwos.workspace.debug:
     Domain verification state:
-      workspace.seventwos.org: verified
+      workspace.seventwos.com: verified
 ```

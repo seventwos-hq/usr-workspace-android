@@ -7,7 +7,7 @@
 # Please see LICENSE files in the repository root for full details.
 
 # Format is:
-# https://workspace.seventwos.org/open/?account_provider=example.org&login_hint=mxid:@alice:example.org
+# https://workspace.seventwos.com/open/?account_provider=example.org&login_hint=mxid:@alice:example.org
 
 adb shell am start -a android.intent.action.VIEW \
-    -d "https://workspace.seventwos.org/open/?account_provider=example.org\\&login_hint=mxid:@alice:example.org"
+    -d "https://workspace.seventwos.com/open/?account_provider=example.org\\&login_hint=mxid:@alice:example.org"
